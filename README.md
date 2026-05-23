@@ -1,4 +1,4 @@
-# 🏠 Home Unlock Bot
+# 🏠 HomePassBot
 
 **A Telegram bot to manage home access via Home Assistant, with dynamic entities, multilingual support, and Docker deployment.**
 
@@ -28,8 +28,8 @@
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/your-username/home-unlock.git
-cd home-unlock
+git clone https://github.com/your-username/homepassbot.git
+cd homepassbot
 cp .env.example .env
 # Edit .env with your token, URL, and admin ID
 ```
@@ -72,8 +72,8 @@ docker compose --profile pg down
 ### Manual build
 
 ```bash
-docker build -t home-unlock-bot .
-docker run --env-file .env -v bot-data:/app/data home-unlock-bot
+docker build -t homepassbot .
+docker run --env-file .env -v bot-data:/app/data homepassbot
 ```
 
 ---

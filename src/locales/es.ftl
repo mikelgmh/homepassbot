@@ -1,9 +1,9 @@
 start_admin =
-    🏠 *Home Unlock Bot*
+    🏠 *HomePassBot*
     
     Usa /menu para abrir el panel de administración.
 start_user =
-    🏠 *Home Unlock Bot*
+    🏠 *HomePassBot*
     
     Comandos:
     /menu - Abrir puertas (si tienes acceso)

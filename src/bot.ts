@@ -8,7 +8,7 @@ import { startExpiryCron } from "./expiry";
 import { i18n } from "./i18n";
 
 console.log("=".repeat(50));
-console.log("🏠 Home Unlock Bot — Starting up...");
+console.log("🏠 HomePassBot — Starting up...");
 console.log("=".repeat(50));
 
 const token = process.env.BOT_TOKEN;

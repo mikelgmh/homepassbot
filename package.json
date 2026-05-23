@@ -1,5 +1,5 @@
 {
-  "name": "home-unlock-bot",
+  "name": "homepassbot",
   "module": "src/bot.ts",
   "type": "module",
   "scripts": {
