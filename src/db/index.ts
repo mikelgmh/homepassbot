@@ -186,6 +186,23 @@ async function initConfig() {
 }
 await initConfig();
 
+// ── Ensure admin user exists in DB ──
+
+const adminId = Number(process.env.ADMIN_ID);
+if (adminId) {
+  const admin = await getUser(adminId);
+  if (!admin) {
+    await db.insert(users).values({
+      telegramId: adminId,
+      firstName: "Admin",
+      permissionStatus: "allowed",
+      languageCode: "en",
+      createdAt: nowSql,
+      updatedAt: nowSql,
+    });
+  }
+}
+
 console.log(`🗄️  Database: ${provider} — ${url}`);
 
 // ── Row mapping ──
