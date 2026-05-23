@@ -165,7 +165,20 @@ commands.callbackQuery(/^lang_(.+)$/, async (ctx) => {
 // ── Catch-all for authorized users ────────────────────────
 
 commands.on("message:text", async (ctx, next) => {
-  if (ctx.from?.id === ADMIN_ID) return next();
+  // Let hears handlers process admin commands first
+  const text = ctx.message.text;
+  if (text.startsWith("/")) { await next(); return; }
+
+  if (ctx.from?.id === ADMIN_ID) {
+    const allEnts = await getAllEntities();
+    if (allEnts.length === 0) return;
+    const keyboard = new InlineKeyboard();
+    for (const e of allEnts) {
+      keyboard.text(`${e.name}`, `open_entity_${e.id}`);
+    }
+    await ctx.reply(ctx.t("select_option_prompt"), { reply_markup: keyboard });
+    return;
+  }
   const user = await getUser(ctx.from.id);
   if (!user || user.permission_status !== "allowed") return;
 
