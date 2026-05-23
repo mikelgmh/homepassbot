@@ -7,7 +7,6 @@ start_user =
     
     Comandos:
     /menu - Abrir puertas (si tienes acceso)
-    /hora - Mostrar hora actual (España)
     /language - Cambiar idioma
 not_authorized = No autorizado
 cancelled = Cancelado
@@ -107,7 +106,6 @@ door_yes_abrir = ✅ Sí, abrir
 door_no = ❌ No
 select_option_prompt = Selecciona una opción:
 
-time_current = 🕐 *Hora actual (España):* { $time }
 time_server = Servidor: { $time }
 time_remaining_never = Sin límite
 time_remaining_expires = Nunca

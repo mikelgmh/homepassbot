@@ -106,7 +106,6 @@ Copy `.env.example` to `.env` and fill in your values.
 | Command | Description |
 |---------|-------------|
 | `/start` | Welcome message |
-| `/hora` | Current time (Spain) |
 | `/language` | Change language |
 | *any text* | Shows available entities (if you have access) |
 

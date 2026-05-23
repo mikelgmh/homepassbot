@@ -145,14 +145,6 @@ commands.command("menu", async (ctx) => {
   await showMainMenu(ctx);
 });
 
-commands.command("hora", async (ctx) => {
-  const now = DateTime.now().setZone("Europe/Madrid");
-  await ctx.reply(
-    ctx.t("time_current", { time: now.toFormat("dd/MM/yyyy HH:mm:ss") }),
-    { parse_mode: "Markdown" },
-  );
-});
-
 commands.command("language", async (ctx) => {
   const keyboard = new InlineKeyboard()
     .text(ctx.t("language_button_es"), "lang_es")
