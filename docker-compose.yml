@@ -1,0 +1,43 @@
+services:
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      - DATABASE_URL=/app/data/bot.sqlite
+    volumes:
+      - bot-data:/app/data
+    restart: unless-stopped
+
+  bot-pg:
+    build: .
+    env_file: .env
+    environment:
+      - DATABASE_PROVIDER=postgres
+      - DATABASE_URL=postgres://home_unlock:${DB_PASSWORD:-changeme}@db:5432/home_unlock
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - pg
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: home_unlock
+      POSTGRES_USER: home_unlock
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U home_unlock"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - pg
+
+volumes:
+  bot-data:
+  pg-data:

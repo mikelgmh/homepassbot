@@ -1,0 +1,27 @@
+{
+  "name": "home-unlock-bot",
+  "module": "src/bot.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/bot.ts",
+    "dev": "bun --watch src/bot.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@grammyjs/i18n": "^1.1.2",
+    "drizzle-orm": "^0.45.2",
+    "grammy": "^1.40.0",
+    "luxon": "^3.7.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/luxon": "^3.7.1",
+    "@types/pg": "^8.20.0",
+    "bun-types": "^1.3.9",
+    "drizzle-kit": "^0.31.10"
+  }
+}
