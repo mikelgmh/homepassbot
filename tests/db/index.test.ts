@@ -20,10 +20,10 @@ afterAll(() => {
 });
 
 describe("database operations", () => {
-  let db: typeof import("./index");
+  let db: typeof import("../../src/db/index");
 
   beforeAll(async () => {
-    db = await import("./index");
+    db = await import("../../src/db/index");
   });
 
   it("should create and retrieve a user", async () => {
@@ -108,10 +108,10 @@ describe("database operations", () => {
 });
 
 describe("entity operations", () => {
-  let db: typeof import("./index");
+  let db: typeof import("../../src/db/index");
 
   beforeAll(async () => {
-    db = await import("./index");
+    db = await import("../../src/db/index");
   });
 
   it("should create and retrieve an entity", async () => {
@@ -156,10 +156,10 @@ describe("entity operations", () => {
 });
 
 describe("user-entity permissions", () => {
-  let db: typeof import("./index");
+  let db: typeof import("../../src/db/index");
 
   beforeAll(async () => {
-    db = await import("./index");
+    db = await import("../../src/db/index");
   });
 
   it("should grant and list user entities", async () => {
@@ -191,10 +191,10 @@ describe("user-entity permissions", () => {
 });
 
 describe("config operations", () => {
-  let db: typeof import("./index");
+  let db: typeof import("../../src/db/index");
 
   beforeAll(async () => {
-    db = await import("./index");
+    db = await import("../../src/db/index");
   });
 
   it("should have default receive_requests = false", async () => {
@@ -217,10 +217,10 @@ describe("config operations", () => {
 });
 
 describe("edge cases", () => {
-  let db: typeof import("./index");
+  let db: typeof import("../../src/db/index");
 
   beforeAll(async () => {
-    db = await import("./index");
+    db = await import("../../src/db/index");
   });
 
   it("should return null for non-existent user", async () => {

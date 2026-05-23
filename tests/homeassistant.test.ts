@@ -19,10 +19,10 @@ const MOCK_STATES = [
 ];
 
 describe("discoverEntities", () => {
-  let discoverEntities: typeof import("./homeassistant")["discoverEntities"];
+  let discoverEntities: typeof import("../src/homeassistant")["discoverEntities"];
 
   beforeAll(async () => {
-    const mod = await import("./homeassistant");
+    const mod = await import("../src/homeassistant");
     discoverEntities = mod.discoverEntities;
   });
 
@@ -89,10 +89,10 @@ describe("discoverEntities", () => {
 });
 
 describe("callEntityAction", () => {
-  let callEntityAction: typeof import("./homeassistant")["callEntityAction"];
+  let callEntityAction: typeof import("../src/homeassistant")["callEntityAction"];
 
   beforeAll(async () => {
-    const mod = await import("./homeassistant");
+    const mod = await import("../src/homeassistant");
     callEntityAction = mod.callEntityAction;
   });
 
@@ -119,10 +119,10 @@ describe("callEntityAction", () => {
 });
 
 describe("fetchFriendlyNames", () => {
-  let fetchFriendlyNames: typeof import("./homeassistant")["fetchFriendlyNames"];
+  let fetchFriendlyNames: typeof import("../src/homeassistant")["fetchFriendlyNames"];
 
   beforeAll(async () => {
-    const mod = await import("./homeassistant");
+    const mod = await import("../src/homeassistant");
     fetchFriendlyNames = mod.fetchFriendlyNames;
   });
 
