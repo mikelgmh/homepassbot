@@ -1,19 +1,10 @@
 import { InlineKeyboard } from "grammy";
 import { DateTime } from "luxon";
-import { getUser, createUser, approveUser, updateExpiration, getUserLanguage, getAllEntities, createEntity, setUserEntities } from "./db";
-import type { MyContext } from "./types";
-import { i18n } from "./i18n";
-import { ADMIN_ID } from "./env";
-
-const DOMAIN_SERVICE_MAP: Record<string, string> = {
-  button: "press",
-  lock: "open",
-  switch: "turn_on",
-  cover: "open",
-  scene: "turn_on",
-  automation: "trigger",
-  input_boolean: "turn_on",
-};
+import { getUser, createUser, approveUser, updateExpiration, getUserLanguage, getAllEntities, createEntity, setUserEntities } from "@/db";
+import type { MyContext } from "@/types";
+import { i18n } from "@/i18n";
+import { ADMIN_ID } from "@/env";
+import { DOMAIN_SERVICE_MAP } from "@/homeassistant";
 
 export interface PendingAction {
   type: "set_expiration" | "change_expiration" | "add_user" | "add_entity";
@@ -53,7 +44,6 @@ async function handleDateInput(
   action: PendingAction,
 ): Promise<boolean> {
   const text = ctx.message!.text.trim();
-
   const regex = /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})$/;
   const match = text.match(regex);
 
@@ -94,22 +84,18 @@ async function handleDateInput(
   const targetLang = await getUserLanguage(action.targetUserId!);
   const formattedMsg = i18n.t(targetLang, "admin_select_doors", { date: formatted, name: userName });
 
-  try {
-    await ctx.editMessageReplyMarkup({ reply_markup: undefined });
-  } catch {}
+  try { await ctx.editMessageReplyMarkup({ reply_markup: undefined }); } catch {}
 
   await ctx.reply(formattedMsg, { parse_mode: "Markdown" });
-
   await showEntitySelection(ctx, action);
-
   return false;
 }
 
 async function showEntitySelection(ctx: MyContext, action: PendingAction) {
   const allEnts = await getAllEntities();
   const selected = new Set(action.selectedEntityIds);
-
   const keyboard = new InlineKeyboard();
+
   for (const e of allEnts) {
     const mark = selected.has(e.id) ? "✅" : "⬜";
     keyboard.text(`${mark} ${e.name}`, `ent_toggle_${e.id}`).row();
@@ -242,4 +228,20 @@ async function handleAddEntityInput(
   );
 
   return true;
+}
+
+// ── Entity selection toggling (used by handlers/entity-management.ts) ──
+
+export async function showEntitySelectionKeyboard(ctx: MyContext, action: PendingAction) {
+  const allEnts = await getAllEntities();
+  const selected = new Set(action.selectedEntityIds);
+  const keyboard = new InlineKeyboard();
+
+  for (const e of allEnts) {
+    const mark = selected.has(e.id) ? "✅" : "⬜";
+    keyboard.text(`${mark} ${e.name}`, `ent_toggle_${e.id}`).row();
+  }
+  keyboard.row().text(ctx.t("confirm_selection"), "ent_confirm");
+
+  await ctx.editMessageText(ctx.t("select_entities_title"), { reply_markup: keyboard });
 }

@@ -12,17 +12,16 @@ const MOCK_STATES = [
   { entity_id: "scene.movie", attributes: { friendly_name: "Movie Mode" } },
   { entity_id: "automation.welcome", attributes: { friendly_name: "Welcome" } },
   { entity_id: "input_boolean.toggle", attributes: { friendly_name: "Toggle" } },
-  // Should be filtered out (not in DOMAIN_SERVICE_MAP)
   { entity_id: "sensor.temperature", attributes: { friendly_name: "Temp" } },
   { entity_id: "light.living_room", attributes: { friendly_name: "Living Room" } },
   { entity_id: "climate.thermostat", attributes: { friendly_name: "Thermostat" } },
 ];
 
 describe("discoverEntities", () => {
-  let discoverEntities: typeof import("../src/homeassistant")["discoverEntities"];
+  let discoverEntities: typeof import("@/homeassistant")["discoverEntities"];
 
   beforeAll(async () => {
-    const mod = await import("../src/homeassistant");
+    const mod = await import("@/homeassistant");
     discoverEntities = mod.discoverEntities;
   });
 
@@ -61,9 +60,7 @@ describe("discoverEntities", () => {
   });
 
   it("should fall back to entity_id when friendly_name missing", async () => {
-    const withoutName = [
-      { entity_id: "lock.unnamed", attributes: {} },
-    ];
+    const withoutName = [{ entity_id: "lock.unnamed", attributes: {} }];
     globalThis.fetch = mock(async () =>
       new Response(JSON.stringify(withoutName), { status: 200 })
     );
@@ -72,9 +69,7 @@ describe("discoverEntities", () => {
   });
 
   it("should return empty array on fetch error", async () => {
-    globalThis.fetch = mock(async () => {
-      throw new Error("Network error");
-    });
+    globalThis.fetch = mock(async () => { throw new Error("Network error"); });
     const result = await discoverEntities();
     expect(result).toEqual([]);
   });
@@ -89,10 +84,10 @@ describe("discoverEntities", () => {
 });
 
 describe("callEntityAction", () => {
-  let callEntityAction: typeof import("../src/homeassistant")["callEntityAction"];
+  let callEntityAction: typeof import("@/homeassistant")["callEntityAction"];
 
   beforeAll(async () => {
-    const mod = await import("../src/homeassistant");
+    const mod = await import("@/homeassistant");
     callEntityAction = mod.callEntityAction;
   });
 
@@ -119,10 +114,10 @@ describe("callEntityAction", () => {
 });
 
 describe("fetchFriendlyNames", () => {
-  let fetchFriendlyNames: typeof import("../src/homeassistant")["fetchFriendlyNames"];
+  let fetchFriendlyNames: typeof import("@/homeassistant")["fetchFriendlyNames"];
 
   beforeAll(async () => {
-    const mod = await import("../src/homeassistant");
+    const mod = await import("@/homeassistant");
     fetchFriendlyNames = mod.fetchFriendlyNames;
   });
 
@@ -153,9 +148,7 @@ describe("fetchFriendlyNames", () => {
   });
 
   it("should return empty object on error", async () => {
-    globalThis.fetch = mock(async () => {
-      throw new Error("error");
-    });
+    globalThis.fetch = mock(async () => { throw new Error("error"); });
     const map = await fetchFriendlyNames();
     expect(map).toEqual({});
   });

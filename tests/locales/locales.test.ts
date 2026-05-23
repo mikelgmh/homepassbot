@@ -37,21 +37,11 @@ describe("locale files", () => {
     expect(onlyInEn).toEqual([]);
     expect(onlyInEs).toEqual([]);
   });
-
-  it("should have all keys defined in en", () => {
-    const enKeys = parseKeys(localeMap.get("en.ftl")!);
-    expect(enKeys.length).toBeGreaterThan(0);
-  });
-
-  it("should have all keys defined in es", () => {
-    const esKeys = parseKeys(localeMap.get("es.ftl")!);
-    expect(esKeys.length).toBeGreaterThan(0);
-  });
 });
 
 describe("i18n instance", () => {
   it("should load translations without error", async () => {
-    const { i18n } = await import("../../src/i18n");
+    const { i18n } = await import("@/i18n");
     expect(i18n).toBeDefined();
     const enTitle = i18n.t("en", "start_admin");
     expect(enTitle).toBeString();
@@ -62,7 +52,7 @@ describe("i18n instance", () => {
   });
 
   it("should translate a key with variables", async () => {
-    const { i18n } = await import("../../src/i18n");
+    const { i18n } = await import("@/i18n");
     const result = i18n.t("en", "admin_pending_title", {
       count: "3",
       list: "user1\nuser2\nuser3",

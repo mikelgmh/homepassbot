@@ -1,45 +1,34 @@
 import { Bot } from "grammy";
-import type { MyContext } from "./types";
-import { commands } from "./commands";
-import { ADMIN_ID } from "./env";
-import { getAllUsers } from "./db";
-import { checkConnection } from "./homeassistant";
-import { startExpiryCron } from "./expiry";
-import { i18n } from "./i18n";
+import type { MyContext } from "@/types";
+import { commands } from "@/handlers";
+import { ADMIN_ID, BOT_TOKEN, HA_TOKEN, HA_URL, BOT_MODE, PORT, WEBHOOK_URL } from "@/env";
+import { getAllUsers } from "@/db";
+import { checkConnection } from "@/homeassistant";
+import { startExpiryCron } from "@/expiry";
+import { i18n } from "@/i18n";
 
 console.log("=".repeat(50));
 console.log("🏠 HomePassBot — Starting up...");
 console.log("=".repeat(50));
 
-const token = process.env.BOT_TOKEN;
-const haToken = process.env.HA_TOKEN;
-const mode = process.env.BOT_MODE ?? "polling";
-const port = process.env.PORT ?? "3000";
-const webhookUrl = process.env.WEBHOOK_URL;
-
 console.log(`📋 Environment variables:`);
-console.log(`   BOT_TOKEN: ${token ? `✅ configured (${token.slice(0, 8)}...)` : "❌ MISSING"}`);
-console.log(`   HA_TOKEN: ${haToken ? `✅ configured (${haToken.slice(0, 8)}...)` : "❌ MISSING"}`);
-console.log(`   HA_URL: ${process.env.HA_URL || "⚠️  not set"}`);
-console.log(`   BOT_MODE: ${mode}`);
+console.log(`   BOT_TOKEN: ✅ configured (${BOT_TOKEN.slice(0, 8)}...)`);
+console.log(`   HA_TOKEN: ${HA_TOKEN ? `✅ configured (${HA_TOKEN.slice(0, 8)}...)` : "❌ MISSING"}`);
+console.log(`   HA_URL: ${HA_URL || "⚠️  not set"}`);
+console.log(`   BOT_MODE: ${BOT_MODE}`);
 console.log(`   DATABASE_PROVIDER: ${process.env.DATABASE_PROVIDER || "sqlite"}`);
 console.log(`   DATABASE_URL: ${process.env.DATABASE_URL || "bot.sqlite"}`);
-if (mode === "webhook") {
-  console.log(`   WEBHOOK_URL: ${webhookUrl ?? "❌ MISSING"}`);
-  console.log(`   PORT: ${port}`);
+if (BOT_MODE === "webhook") {
+  console.log(`   WEBHOOK_URL: ${WEBHOOK_URL || "❌ MISSING"}`);
+  console.log(`   PORT: ${PORT}`);
 }
 console.log(`   ADMIN_ID: ${ADMIN_ID}`);
 
-if (!token) {
-  console.error("❌ BOT_TOKEN is missing — the bot cannot start");
-  process.exit(1);
-}
-
-if (!haToken) {
+if (!HA_TOKEN) {
   console.warn("⚠️  HA_TOKEN is missing — Home Assistant functions will not work");
 }
 
-// ── Database check ────────────────────────────────────────
+// ── Database check ──
 
 try {
   const userCount = (await getAllUsers()).length;
@@ -49,23 +38,23 @@ try {
   process.exit(1);
 }
 
-// ── Home Assistant connection test ────────────────────────
+// ── Home Assistant connection test ──
 
-if (haToken) {
+if (HA_TOKEN) {
   checkConnection().then((r) => {
     if (r.success) {
       console.log(`🔌 Home Assistant: ✅ connection OK`);
     } else {
       console.log(`🔌 Home Assistant: ⚠️  ${r.error}`);
       console.log(`   ℹ️  Check that HA_URL is correct and HA_TOKEN is valid`);
-      console.log(`   ℹ️  Current HA_URL: "${process.env.HA_URL}"`);
+      console.log(`   ℹ️  Current HA_URL: "${HA_URL}"`);
     }
   });
 }
 
-// ── Bot init ───────────────────────────────────────────────
+// ── Bot init ──
 
-const bot = new Bot<MyContext>(token);
+const bot = new Bot<MyContext>(BOT_TOKEN);
 
 bot.use(i18n.middleware());
 bot.use(commands);
@@ -85,19 +74,19 @@ try {
   process.exit(1);
 }
 
-// ── Expiry cron ──────────────────────────────────────────
+// ── Expiry cron ──
 
 startExpiryCron(bot);
 
-// ── Start mode ────────────────────────────────────────────
+// ── Start mode ──
 
-if (mode === "webhook") {
-  if (!webhookUrl) {
+if (BOT_MODE === "webhook") {
+  if (!WEBHOOK_URL) {
     console.error("❌ WEBHOOK_URL environment variable is missing");
     process.exit(1);
   }
 
-  const fullUrl = `${webhookUrl.replace(/\/+$/, "")}/webhook`;
+  const fullUrl = `${WEBHOOK_URL.replace(/\/+$/, "")}/webhook`;
 
   try {
     console.log("📡 Cleaning up previous webhook...");
@@ -107,10 +96,10 @@ if (mode === "webhook") {
     console.error("❌ Error cleaning up previous webhook:", e);
   }
 
-  console.log(`🌐 Starting HTTP server on port ${port}...`);
+  console.log(`🌐 Starting HTTP server on port ${PORT}...`);
 
   Bun.serve({
-    port: parseInt(port),
+    port: parseInt(PORT),
     async fetch(req) {
       const url = new URL(req.url);
       if (url.pathname === "/webhook" && req.method === "POST") {
@@ -130,7 +119,7 @@ if (mode === "webhook") {
     },
   });
 
-  console.log(`✅ HTTP server listening on port ${port}`);
+  console.log(`✅ HTTP server listening on port ${PORT}`);
 
   try {
     console.log("📡 Registering webhook with Telegram...");

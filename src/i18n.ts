@@ -1,7 +1,7 @@
 import { I18n } from "@grammyjs/i18n";
 import path from "path";
-import type { MyContext } from "./types";
-import { setUserLanguage, getUserLanguage } from "./db";
+import type { MyContext } from "@/types";
+import { setUserLanguage, getUserLanguage } from "@/db";
 
 export const i18n = new I18n<MyContext>({
   defaultLocale: "en",

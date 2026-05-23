@@ -6,6 +6,7 @@ const TEST_DB = "test.sqlite";
 beforeAll(() => {
   process.env.DATABASE_PROVIDER = "sqlite";
   process.env.DATABASE_URL = TEST_DB;
+  process.env.ADMIN_ID = "999999";
   if (existsSync(TEST_DB)) unlinkSync(TEST_DB);
 });
 
@@ -20,10 +21,10 @@ afterAll(() => {
 });
 
 describe("database operations", () => {
-  let db: typeof import("../../src/db/index");
+  let db: typeof import("@/db");
 
   beforeAll(async () => {
-    db = await import("../../src/db/index");
+    db = await import("@/db");
   });
 
   it("should create and retrieve a user", async () => {
@@ -108,10 +109,10 @@ describe("database operations", () => {
 });
 
 describe("entity operations", () => {
-  let db: typeof import("../../src/db/index");
+  let db: typeof import("@/db");
 
   beforeAll(async () => {
-    db = await import("../../src/db/index");
+    db = await import("@/db");
   });
 
   it("should create and retrieve an entity", async () => {
@@ -156,10 +157,10 @@ describe("entity operations", () => {
 });
 
 describe("user-entity permissions", () => {
-  let db: typeof import("../../src/db/index");
+  let db: typeof import("@/db");
 
   beforeAll(async () => {
-    db = await import("../../src/db/index");
+    db = await import("@/db");
   });
 
   it("should grant and list user entities", async () => {
@@ -191,10 +192,10 @@ describe("user-entity permissions", () => {
 });
 
 describe("config operations", () => {
-  let db: typeof import("../../src/db/index");
+  let db: typeof import("@/db");
 
   beforeAll(async () => {
-    db = await import("../../src/db/index");
+    db = await import("@/db");
   });
 
   it("should have default receive_requests = false", async () => {
@@ -217,10 +218,10 @@ describe("config operations", () => {
 });
 
 describe("edge cases", () => {
-  let db: typeof import("../../src/db/index");
+  let db: typeof import("@/db");
 
   beforeAll(async () => {
-    db = await import("../../src/db/index");
+    db = await import("@/db");
   });
 
   it("should return null for non-existent user", async () => {
@@ -246,11 +247,7 @@ describe("edge cases", () => {
     await db.createEntity("First", "lock.duplicate", "lock", "open");
     try {
       await db.createEntity("Second", "lock.duplicate", "lock", "open");
-      // If we get here, the DB may or may not enforce uniqueness
-      // SQLite does not enforce UNIQUE on entity_id in this schema
-    } catch {
-      // Expected if UNIQUE constraint exists
-    }
+    } catch {}
   });
 
   it("should handle entity_id with special chars", async () => {
@@ -292,9 +289,7 @@ describe("edge cases", () => {
     try {
       await db.createEntity("First", "lock.dup_check", "lock", "open");
       await db.createEntity("Second", "lock.dup_check", "lock", "open");
-    } catch {
-      // UNIQUE constraint enforced by DB
-    }
+    } catch {}
   });
 
   it("should not create a duplicate entity_id in user_entities", async () => {

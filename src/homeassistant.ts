@@ -1,5 +1,4 @@
-const HA_URL = process.env.HA_URL ?? "";
-const HA_TOKEN = process.env.HA_TOKEN ?? "";
+import { HA_URL, HA_TOKEN } from "./env";
 
 export interface HaResult {
   success: boolean;
@@ -13,7 +12,7 @@ export interface HaEntityInfo {
   service: string;
 }
 
-const DOMAIN_SERVICE_MAP: Record<string, string> = {
+export const DOMAIN_SERVICE_MAP: Record<string, string> = {
   button: "press",
   lock: "open",
   switch: "turn_on",

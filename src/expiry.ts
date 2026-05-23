@@ -1,8 +1,8 @@
 import { Bot } from "grammy";
-import { getExpiredUsers, expireUser, getUserLanguage } from "./db";
-import { ADMIN_ID } from "./env";
-import type { MyContext } from "./types";
-import { i18n } from "./i18n";
+import { getExpiredUsers, expireUser, getUserLanguage } from "@/db";
+import { ADMIN_ID } from "@/env";
+import type { MyContext } from "@/types";
+import { i18n } from "@/i18n";
 
 export function startExpiryCron(bot: Bot<MyContext>) {
   async function checkExpired() {
@@ -33,10 +33,7 @@ export function startExpiryCron(bot: Bot<MyContext>) {
     }
   }
 
-  // Run every 60 seconds
   setInterval(checkExpired, 60_000);
-
-  // Also run once immediately at startup
   checkExpired();
 
   console.log("⏰ Expiration cron started (every 60s)");
