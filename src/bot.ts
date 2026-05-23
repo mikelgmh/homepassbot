@@ -7,6 +7,16 @@ import { checkConnection } from "@/homeassistant";
 import { startExpiryCron } from "@/expiry";
 import { i18n } from "@/i18n";
 
+if (!ADMIN_ID) {
+  console.error("❌ ADMIN_ID is not set or invalid in environment variables");
+  process.exit(1);
+}
+
+if (!BOT_TOKEN) {
+  console.error("❌ BOT_TOKEN is not set in environment variables");
+  process.exit(1);
+}
+
 console.log("=".repeat(50));
 console.log("🏠 HomePassBot — Starting up...");
 console.log("=".repeat(50));

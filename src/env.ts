@@ -8,12 +8,4 @@ export const WEBHOOK_URL = process.env.WEBHOOK_URL ?? "";
 export const DATABASE_PROVIDER = process.env.DATABASE_PROVIDER ?? "sqlite";
 export const DATABASE_URL = process.env.DATABASE_URL ?? "bot.sqlite";
 
-if (!ADMIN_ID) {
-  console.error("❌ ADMIN_ID is not set or invalid in environment variables");
-  process.exit(1);
-}
-
-if (!BOT_TOKEN) {
-  console.error("❌ BOT_TOKEN is not set in environment variables");
-  process.exit(1);
-}
+// Validation is done in bot.ts (entry point) to allow tests to import env.ts without process.exit

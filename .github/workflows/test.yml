@@ -18,5 +18,6 @@ jobs:
       - run: bun test
         env:
           ADMIN_ID: 12345
+          BOT_TOKEN: fake-bot-token-for-tests
           HA_URL: https://homeassistant.example.com
           HA_TOKEN: fake-ha-token-for-tests
