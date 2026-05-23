@@ -16,3 +16,7 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun test
+        env:
+          ADMIN_ID: 12345
+          HA_URL: https://homeassistant.example.com
+          HA_TOKEN: fake-ha-token-for-tests

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach, mock } from "bun:test";
 
+process.env.ADMIN_ID = "12345";
 process.env.HA_URL = "https://ha.test";
 process.env.HA_TOKEN = "fake_token";
 
