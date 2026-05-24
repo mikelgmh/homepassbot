@@ -1,10 +1,7 @@
-name: Test
+name: Run tests and upload coverage
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  push
 
 jobs:
   test:
@@ -13,13 +10,23 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
       - run: bun install --frozen-lockfile
-      - run: bun test
+
+      - run: bun test --coverage
         env:
           ADMIN_ID: 12345
           BOT_TOKEN: fake-bot-token-for-tests
           HA_URL: https://homeassistant.example.com
           HA_TOKEN: fake-ha-token-for-tests
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
