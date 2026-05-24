@@ -1,0 +1,27 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./config:/config
+    environment:
+      - TZ=Europe/Madrid
+    restart: unless-stopped
+
+  home-unlock:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8099"
+    environment:
+      - ADMIN_ID=${ADMIN_ID}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - HA_URL=http://homeassistant:8123/api
+      - HA_TOKEN=${HA_TOKEN}
+      - SESSION_SECRET=${SESSION_SECRET:-cambia-esto-en-prod}
+      - PORT=8099
+    depends_on:
+      - homeassistant
+    restart: unless-stopped

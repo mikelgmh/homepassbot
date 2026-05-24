@@ -3,6 +3,8 @@ import { describe, it, expect, beforeAll, afterAll, afterEach, mock } from "bun:
 process.env.ADMIN_ID = "12345";
 process.env.HA_URL = "https://ha.test";
 process.env.HA_TOKEN = "fake_token";
+process.env.DATABASE_URL = "test.sqlite";
+process.env.SESSION_SECRET = "test-secret";
 
 const MOCK_STATES = [
   { entity_id: "lock.front_door", attributes: { friendly_name: "Front Door" } },

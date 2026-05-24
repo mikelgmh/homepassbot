@@ -20,5 +20,8 @@ export default defineConfig({
         "@": "/src",
       },
     },
+    ssr: {
+      external: ["bun:sqlite", "drizzle-orm/bun-sqlite"],
+    },
   },
 });

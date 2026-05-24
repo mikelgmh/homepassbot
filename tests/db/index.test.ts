@@ -3,12 +3,12 @@ import { unlinkSync, existsSync } from "fs";
 
 const TEST_DB = "test.sqlite";
 
-beforeAll(() => {
-  process.env.DATABASE_PROVIDER = "sqlite";
-  process.env.DATABASE_URL = TEST_DB;
-  process.env.ADMIN_ID = "999999";
-  if (existsSync(TEST_DB)) unlinkSync(TEST_DB);
-});
+// Set at top level so @/env gets correct values regardless of file evaluation order
+process.env.DATABASE_PROVIDER = "sqlite";
+process.env.DATABASE_URL = TEST_DB;
+process.env.ADMIN_ID = "999999";
+
+if (existsSync(TEST_DB)) unlinkSync(TEST_DB);
 
 afterAll(() => {
   try {
