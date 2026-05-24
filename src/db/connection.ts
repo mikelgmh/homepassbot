@@ -196,6 +196,9 @@ async function init() {
   console.log(`🗄️  Database: ${prov} — ${url}`);
 }
 
-await init();
+// Only auto-init when running under Bun (avoids bun:sqlite import error in Node/Vite SSR)
+if (typeof Bun !== "undefined") {
+  await init();
+}
 
 export { db };
