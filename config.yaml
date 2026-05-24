@@ -1,0 +1,27 @@
+name: "Home Unlock"
+version: "1.0.0"
+slug: home_unlock
+description: "Telegram bot + web UI for home access control"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+host_network: true
+ingress: true
+ingress_port: 8099
+panel_icon: "mdi:lock-open"
+panel_title: "Home Unlock"
+map:
+  - config:rw
+options:
+  admin_id: ""
+  bot_token: ""
+  port: "8099"
+schema:
+  admin_id: str
+  bot_token: str
+  port: str

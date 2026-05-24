@@ -1,5 +1,6 @@
 import { sql, eq } from "drizzle-orm";
 import type { Dialect, NowSql } from "./types";
+import { DATABASE_PROVIDER, DATABASE_URL, ADMIN_ID } from "@/env";
 
 type DrizzleDb = Awaited<ReturnType<typeof createDb>>;
 
@@ -9,6 +10,8 @@ export let users: any;
 export let entitiesTable: any;
 export let userEntitiesTable: any;
 export let configTable: any;
+export let pinsTable: any;
+export let accessLogTable: any;
 export let nowSql: NowSql;
 
 async function createDb(prov: Dialect, url: string) {
@@ -29,15 +32,15 @@ async function createDb(prov: Dialect, url: string) {
 async function loadSchema(prov: Dialect) {
   if (prov === "postgres") {
     const mod = await import("./schema-pg");
-    return { users: mod.users, entities: mod.entities, userEntities: mod.userEntities, config: mod.config };
+    return { users: mod.users, entities: mod.entities, userEntities: mod.userEntities, config: mod.config, pins: mod.pins, accessLog: mod.accessLog };
   }
   const mod = await import("./schema-sqlite");
-  return { users: mod.users, entities: mod.entities, userEntities: mod.userEntities, config: mod.config };
+  return { users: mod.users, entities: mod.entities, userEntities: mod.userEntities, config: mod.config, pins: mod.pins, accessLog: mod.accessLog };
 }
 
 async function init() {
-  const prov = (process.env.DATABASE_PROVIDER || "sqlite") as Dialect;
-  const url = process.env.DATABASE_URL || "bot.sqlite";
+  const prov = (DATABASE_PROVIDER || "sqlite") as Dialect;
+  const url = DATABASE_URL || "bot.sqlite";
 
   provider = prov;
   db = await createDb(prov, url);
@@ -46,6 +49,8 @@ async function init() {
   entitiesTable = schema.entities;
   userEntitiesTable = schema.userEntities;
   configTable = schema.config;
+  pinsTable = schema.pins;
+  accessLogTable = schema.accessLog;
 
   if (prov === "postgres") {
     nowSql = sql`TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS')`;
@@ -84,6 +89,21 @@ async function init() {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     )`);
+    db.run(sql`CREATE TABLE IF NOT EXISTS pins (
+      user_id INTEGER NOT NULL UNIQUE,
+      pin_hash TEXT NOT NULL,
+      label TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`);
+    db.run(sql`CREATE TABLE IF NOT EXISTS access_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      pin_hash TEXT,
+      entity_id TEXT NOT NULL,
+      success INTEGER NOT NULL,
+      ip TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`);
     try { db.run(sql`ALTER TABLE users ADD COLUMN language_code TEXT NOT NULL DEFAULT 'es'`); } catch {}
   } else {
     await db.execute(sql`CREATE TABLE IF NOT EXISTS users (
@@ -115,6 +135,21 @@ async function init() {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     )`);
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS pins (
+      user_id INTEGER NOT NULL UNIQUE,
+      pin_hash TEXT NOT NULL,
+      label TEXT,
+      created_at TEXT NOT NULL DEFAULT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+    )`);
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS access_log (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER,
+      pin_hash TEXT,
+      entity_id TEXT NOT NULL,
+      success INTEGER NOT NULL,
+      ip TEXT,
+      created_at TEXT NOT NULL DEFAULT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+    )`);
   }
 
   // ── Migrate legacy can_portal / can_casa data ──
@@ -143,7 +178,7 @@ async function init() {
   }
 
   // ── Ensure admin user exists in DB ──
-  const adminId = Number(process.env.ADMIN_ID);
+  const adminId = Number(ADMIN_ID);
   if (adminId) {
     const rows = await db.select().from(users).where(eq(users.telegramId, adminId)).limit(1);
     if (rows.length === 0) {

@@ -4,6 +4,7 @@ import {
   getUser, getAllUsers, getUsersByStatus, denyUser, expireUser, resetUser, getUserLanguage,
   getAllEntities, getReceiveRequests, setReceiveRequests,
 } from "@/db";
+import { getAllPins, removePin } from "@/db/pins";
 import type { MyContext } from "@/types";
 import { i18n } from "@/i18n";
 import { ADMIN_ID } from "@/env";
@@ -31,6 +32,8 @@ export async function buildMainKeyboard(ctx: MyContext) {
     .text(ctx.t("menu_denied_users"), "menu_denied_users")
     .row()
     .text(ctx.t("menu_manage_entities"), "menu_manage_entities")
+    .row()
+    .text(ctx.t("menu_manage_pins"), "menu_manage_pins")
     .row()
     .text(requestsLabel, "toggle_requests")
     .row()
@@ -274,4 +277,61 @@ adminMenuHandlers.callbackQuery(/^admin_deny_(\d+)$/, async (ctx) => {
     const msg = await tForUser(userId, "access_denied_by_admin");
     await ctx.api.sendMessage(userId, msg);
   } catch {}
+});
+
+// ── PIN Management ──
+
+adminMenuHandlers.callbackQuery("menu_manage_pins", async (ctx) => {
+  if (ctx.from?.id !== ADMIN_ID) return;
+  await ctx.answerCallbackQuery();
+
+  const allUsers = await getAllUsers();
+  const allPins = await getAllPins();
+  const pinMap = new Map(allPins.map((p) => [p.userId, p]));
+
+  const lines = allUsers.map((u) => {
+    const name = u.first_name ?? u.username ?? `ID ${u.telegram_id}`;
+    const hasPin = pinMap.has(u.telegram_id);
+    return `${hasPin ? "🟢" : "🔴"} ${name} (\`${u.telegram_id}\`)${hasPin ? " — PIN set" : " — No PIN"}`;
+  });
+
+  const keyboard = new InlineKeyboard();
+  for (const u of allUsers) {
+    const name = u.first_name ?? u.username ?? `ID ${u.telegram_id}`;
+    const hasPin = pinMap.has(u.telegram_id);
+    keyboard.text(hasPin ? `🟢 ${name}` : `🔴 ${name}`, `pin_toggle_${u.telegram_id}`).row();
+  }
+  keyboard.text(ctx.t("admin_back"), "back_to_menu");
+
+  await ctx.editMessageText(
+    `${ctx.t("pin_management_title")}\n\n${lines.join("\n")}`,
+    { parse_mode: "Markdown", reply_markup: keyboard },
+  );
+});
+
+adminMenuHandlers.callbackQuery(/^pin_toggle_(\d+)$/, async (ctx) => {
+  const targetId = parseInt(ctx.match[1]);
+  if (ctx.from?.id !== ADMIN_ID) return;
+
+  const existing = await getAllPins();
+  const hasPin = existing.some((p) => p.userId === targetId);
+
+  if (hasPin) {
+    await removePin(targetId);
+    await ctx.answerCallbackQuery({ text: ctx.t("callback_pin_removed") });
+  } else {
+    pendingActions.set(ctx.from.id, { type: "set_pin", targetUserId: targetId } as any);
+    await ctx.answerCallbackQuery({ text: ctx.t("callback_enter_pin") });
+
+    try { await ctx.editMessageReplyMarkup({ reply_markup: undefined }); } catch {}
+
+    const user = await getUser(targetId);
+    const name = user?.first_name ?? `ID ${targetId}`;
+    await ctx.reply(ctx.t("pin_enter_code", { name, cancel: ctx.t("cancel_command") }));
+    return;
+  }
+
+  await ctx.editMessageText(ctx.t(hasPin ? "pin_removed_msg" : "pin_set_msg"), {
+    reply_markup: new InlineKeyboard().text(ctx.t("admin_back"), "menu_manage_pins"),
+  });
 });

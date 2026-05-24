@@ -34,3 +34,20 @@ export const userEntities = sqliteTable("user_entities", {
 }, (table) => ({
   pk: primaryKey({ columns: [table.userId, table.entityId] }),
 }));
+
+export const pins = sqliteTable("pins", {
+  userId: integer("user_id").notNull().unique(),
+  pinHash: text("pin_hash").notNull(),
+  label: text("label"),
+  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+});
+
+export const accessLog = sqliteTable("access_log", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id"),
+  pinHash: text("pin_hash"),
+  entityId: text("entity_id").notNull(),
+  success: integer("success").notNull(),
+  ip: text("ip"),
+  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+});

@@ -1,0 +1,117 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+<Layout>
+  <div id="app" class="min-h-screen flex items-center justify-center bg-gray-950 text-white">
+    <div class="w-full max-w-md p-6 space-y-6">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold">Home Unlock</h1>
+        <p class="text-gray-400 mt-1">PIN access system</p>
+      </div>
+      <form id="pin-form" class="space-y-4">
+        <input
+          type="password"
+          id="pin-input"
+          placeholder="Enter your PIN"
+          class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          maxlength="6"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          class="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition-colors"
+        >
+          Unlock
+        </button>
+      </form>
+      <p id="error" class="text-red-400 text-center hidden"></p>
+      <div id="dashboard" class="hidden space-y-4">
+        <p class="text-green-400 text-center">Authenticated</p>
+        <div id="entities" class="space-y-2"></div>
+        <button id="logout" class="w-full py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm transition-colors">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const pinForm = document.getElementById("pin-form");
+    const pinInput = document.getElementById("pin-input");
+    const errorEl = document.getElementById("error");
+    const dashboard = document.getElementById("dashboard");
+    const entitiesEl = document.getElementById("entities");
+    const logoutBtn = document.getElementById("logout");
+
+    async function checkSession() {
+      const res = await fetch("/api/status");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) showDashboard(data);
+        else showLogin();
+      }
+    }
+
+    function showLogin() {
+      pinForm.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+    }
+
+    function showDashboard(data) {
+      pinForm.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      entitiesEl.innerHTML = data.entities
+        .map(
+          (e) =>
+            `<button class="entity-btn w-full py-3 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-left px-4 transition-colors" data-entity="${e.entity_id}">${e.name}</button>`
+        )
+        .join("");
+      document.querySelectorAll(".entity-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          btn.textContent = "Opening...";
+          const res = await fetch("/api/open", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entity_id: btn.dataset.entity }),
+          });
+          const result = await res.json();
+          btn.textContent = result.success ? "✓ Opened" : "✗ " + (result.error || "Failed");
+          setTimeout(() => {
+            btn.textContent = btn.dataset.entity;
+            btn.disabled = false;
+          }, 2000);
+        });
+      });
+    }
+
+    pinForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.classList.add("hidden");
+      const pin = pinInput.value.trim();
+      if (pin.length < 4) return;
+      const res = await fetch("/api/pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+      pinInput.value = "";
+      if (res.ok) {
+        const data = await res.json();
+        showDashboard(data);
+      } else {
+        const data = await res.json();
+        errorEl.textContent = data.error || "Invalid PIN";
+        errorEl.classList.remove("hidden");
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await fetch("/api/pin", { method: "DELETE" });
+      showLogin();
+    });
+
+    checkSession();
+  </script>
+</Layout>

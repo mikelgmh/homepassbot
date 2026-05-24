@@ -1,15 +1,16 @@
 import { InlineKeyboard } from "grammy";
 import { DateTime } from "luxon";
 import { getUser, createUser, approveUser, updateExpiration, getUserLanguage, getAllEntities, createEntity, setUserEntities } from "@/db";
+import { setPin } from "@/db/pins";
 import type { MyContext } from "@/types";
 import { i18n } from "@/i18n";
 import { ADMIN_ID } from "@/env";
 import { DOMAIN_SERVICE_MAP } from "@/homeassistant";
 
 export interface PendingAction {
-  type: "set_expiration" | "change_expiration" | "add_user" | "add_entity";
+  type: "set_expiration" | "change_expiration" | "add_user" | "add_entity" | "set_pin";
   targetUserId?: number;
-  step: "awaiting_date" | "awaiting_entities";
+  step: "awaiting_date" | "awaiting_entities" | "awaiting_pin";
   expiresAt?: string;
   selectedEntityIds: number[];
 }
@@ -36,7 +37,26 @@ export async function handlePendingAction(
       return handleAddUserInput(ctx, text);
     case "add_entity":
       return handleAddEntityInput(ctx, text);
+    case "set_pin":
+      return handleSetPinInput(ctx, text);
   }
+}
+
+async function handleSetPinInput(ctx: MyContext, text: string): Promise<boolean> {
+  const userId = ctx.from!.id;
+  const action = pendingActions.get(userId);
+  if (!action || action.type !== "set_pin") return true;
+
+  const pin = text.trim();
+  if (!/^\d{4,6}$/.test(pin)) {
+    await ctx.reply(ctx.t("pin_enter_code", { name: "", cancel: ctx.t("cancel_command") }));
+    return false;
+  }
+
+  await setPin(action.targetUserId!, pin);
+  pendingActions.delete(userId);
+  await ctx.reply(ctx.t("pin_set_msg"));
+  return true;
 }
 
 async function handleDateInput(

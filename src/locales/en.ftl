@@ -180,3 +180,12 @@ language_changed_es = ✅ Idioma cambiado a español.
 language_changed_en = ✅ Language changed to English.
 language_button_es = 🇪🇸 Español
 language_button_en = 🇬🇧 English
+
+menu_manage_pins = 🔑 Manage PINs
+pin_management_title = 🔑 *PIN Management*
+pin_enter_code =
+    Enter a 4-6 digit PIN for *{ $name }*, or type "{ $cancel }":
+pin_set_msg = ✅ PIN set successfully.
+pin_removed_msg = ❌ PIN removed.
+callback_pin_removed = PIN removed
+callback_enter_pin = Enter PIN for user
