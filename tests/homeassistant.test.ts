@@ -112,6 +112,46 @@ describe("callEntityAction", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("HTTP 503");
   });
+
+  it("should return fetch error on network failure", async () => {
+    globalThis.fetch = mock(async () => { throw new Error("ECONNREFUSED"); });
+    const result = await callEntityAction("lock.test", "lock", "open");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Fetch error");
+  });
+});
+
+describe("checkConnection", () => {
+  let checkConnection: typeof import("@/homeassistant")["checkConnection"];
+
+  beforeAll(async () => {
+    const mod = await import("@/homeassistant");
+    checkConnection = mod.checkConnection;
+  });
+
+  afterEach(() => {
+    mock.restore();
+  });
+
+  it("should return success on 200", async () => {
+    globalThis.fetch = mock(async () => new Response("OK", { status: 200 }));
+    const result = await checkConnection();
+    expect(result.success).toBe(true);
+  });
+
+  it("should return error on non-200", async () => {
+    globalThis.fetch = mock(async () => new Response("Unauthorized", { status: 401 }));
+    const result = await checkConnection();
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("HTTP 401");
+  });
+
+  it("should return error on fetch failure", async () => {
+    globalThis.fetch = mock(async () => { throw new Error("Network error"); });
+    const result = await checkConnection();
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Fetch error");
+  });
 });
 
 describe("fetchFriendlyNames", () => {
