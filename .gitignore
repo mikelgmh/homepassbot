@@ -5,4 +5,5 @@ node_modules/
 *.sqlite-wal
 dist/
 .vscode/
+coverage/
 
