@@ -1,5 +1,10 @@
 # 🏠 HomePassBot
 
+[![Test](https://github.com/mikelgmh/homepassbot/actions/workflows/test.yml/badge.svg)](https://github.com/mikelgmh/homepassbot/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/mikelgmh/homepassbot/branch/main/graph/badge.svg)](https://codecov.io/gh/mikelgmh/homepassbot)
+[![Bun](https://img.shields.io/badge/Bun-000?logo=bun&logoColor=white)](https://bun.sh)
+[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?logo=telegram&logoColor=white)](https://telegram.org)
+
 **A Telegram bot to manage home access via Home Assistant, with dynamic entities, multilingual support, and Docker deployment.**
 
 ---
